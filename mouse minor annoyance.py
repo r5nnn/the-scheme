@@ -26,11 +26,11 @@ def move():
         x, y = MouseX(), MouseY()
         windll.user32.mouse_event(1, o, p, 0, 0)
         if((x==0 or x==1919) and counter==0):
-            counter=5
+            counter=10
             print("wingle")
             o*=-1
         elif((y==0 or y==1079) and counter==0):
-            counter=5
+            counter=10
             print("dingle")
             p*=-1
         time.sleep(0.01)
@@ -48,12 +48,17 @@ def shutdown():
     windll.user32.mouse_event(1, 10, -30, 0, 0)
     time.sleep(0.1)
     windll.user32.mouse_event(6, 0, 0, 0, 0)
-def angle(t, t1, ns, ew):
+def angle(t, t1):
     tick=0
     tick1=0
-    windll.user32.SetCursorPos(948, 886)
-    time.sleep(1)
+    counter=0
+    ns=-1
+    ew=1
     while(xx==1):
+        print(ns)
+        x, y = MouseX(), MouseY()
+        if (counter > 0):
+            counter = counter - 1
         if (tick==int(t)):
             windll.user32.mouse_event(1, int(ns), 0, 0, 0)
             tick=0
@@ -62,12 +67,20 @@ def angle(t, t1, ns, ew):
             tick1=0
         tick +=1
         tick1 +=1
+        if ((x == 0 or x == 1919) and counter == 0):
+            counter = 5
+            print("wingle")
+            ns*=-1
+        if ((y == 0 or y == 1079) and counter == 0):
+            counter = 5
+            print("dingle")
+            ew*=-1
         time.sleep(0.001)
 xx = 1
 pullx = 0
 pully = 0
 choice = input(
-    "\nwrite 1 for shutdown on border touch, 2 for mirror, 3 for black hole, 4 for bounce")
+    "\nwrite 1 for shutdown on border touch, 2 for mirror, 3 for black hole, 4 for bounce, 5 for bounce with angle")
 if (choice == "0"):
     print(MouseX(),MouseY())
 
@@ -122,8 +135,7 @@ elif (choice == "3"):
 elif (choice == "4"):
     move()
 elif (choice =="5"):
-    tinput=input("t")
-    t1input=input("t1")
-    ns=input("-1 for up, 1 for down")
-    ew=input("-1 for left, 1 for right")
-    angle(tinput, t1input, ns, ew)
+    tinput=input("horizontal movement")
+    t1input=input("vertical movement")
+    angle(tinput, t1input)
+    
