@@ -1,109 +1,77 @@
+import random
+import time
 from tkinter import *
 
 
 # class to make multiple instances of the paddle objects
 class Paddle:
     def __init__(self, can, start_x, start_y, size_x, size_y, color, tag):
-        self.can = can
-        self.color = color
-        self.tag = tag
-        self.start_x = start_x
-        self.start_y = start_y
-        self.size_x = size_x
-        self.size_y = size_y
+        self.can, self.color, self.tag = can, color, tag
+        self.start_x, self.start_y, self.size_x, self.size_y = start_x, start_y, size_x, size_y
         # paddle created
         self.paddle = self.can.create_rectangle((start_x, start_y, start_x + size_x, start_y + size_y), fill=color,
                                                 tag=self.tag)
+        self.yspeed = 0
+        self.can.bind_all('<KeyPress-Up>', self.move_up)
+        self.can.bind_all('<KeyPress-Down>', self.move_down)
 
+    def move(self):
+        self.can.move(self.paddle, 0, self.yspeed)
+        pos = self.can.coords(self.paddle)
+        if pos[1] <= 0:
+            self.yspeed = 0
+        if pos[3] >= 700:
+            self.yspeed = 0
+
+    def move_up(self, evt):
+        self.yspeed = -2
+
+    def move_down(self, evt):
+        self.yspeed = 2
 
 # class to make multiple instances of the ball objects
 class Ball:
-    def __init__(self, can, start_x, start_y, size_x, size_y, color, tag):
-        self.can = can
-        self.color = color
-        self.tag = tag
-        self.start_x = start_x
-        self.start_y = start_y
-        self.size_x = size_x
-        self.size_y = size_y
+    def __init__(self, can, start_x, start_y, size_x, size_y, color, tag, pad):
+        self.can, self.color, self.tag, self.pad = can, color, tag, pad
+        self.start_x, self.start_y, self.size_x, self.size_y = start_x, start_y, size_x, size_y
         # ball created
         self.ball = self.can.create_oval((start_x, start_y, start_x + size_x, start_y + size_y), fill=color,
                                          tag=self.tag)
+        self.xspeed = 3
+        self.yspeed = random.randrange(-3,3)
 
+    def move(self):
+        self.can.move(self.tag, self.xspeed, self.yspeed)
+        pos = self.can.coords(self.tag)
+        print(pos)
+        if pos[1] <= 0:
+            self.yspeed *=-1
+        if pos[3] >= 700:
+            self.yspeed *=-1
+        if pos[0] <= 0:
+            self.xspeed *=-1
+        if pos[2] >= 1200:
+            self.xspeed *=-1
+        if self.hit_paddle(pos) == True:
+            self.yspeed = random.randrange(-3,3)
+            self.xspeed *=-1
 
-# class to make multiple instances of the text objects
-class Text:
-    def __init__(self, can, tx, ty, text, fill, font, tag):
-        self.can = can
-        self.text = text
-        self.can.create_text(tx, ty, text=text, fill=fill, font=font, tag=tag)
-
-
-# class to make key down and key up detection easier
-class KeyRepeater(Tk):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.current = {}
-        self.functions = {}
-        self.bind("<KeyPress>", self.keydown, add="+")
-        self.bind("<KeyRelease>", self.keyup, add="+")
-        self.key_loop()
-
-    def key_loop(self):
-        for function in self.current.values():
-            if function:
-                function()
-        self.after(40, self.key_loop)  # set repeat time here.
-
-    def key_bind(self, key, function):
-        self.functions[key] = function
-
-    def keydown(self, event=None):
-        if event.keysym in self.functions:
-            self.current[event.keysym] = self.functions.get(event.keysym)
-
-    def keyup(self, event=None):
-        self.current.pop(event.keysym, None)
-
-
-def ballmove():
-    global ball_x_speed, ball_y_speed
-    canvas.move('ball', ball_x_speed, ball_y_speed)
-    ball_coordinates = canvas.coords('ball')
-    pad_coordinates = canvas.coords('pad')
-    epad_coordinates = canvas.coords('epad')
-    # paddle1 hitbox detection
-    if pad_coordinates[1] <= ball_coordinates[1] <= pad_coordinates[3] and ball_coordinates[0] <= pad_coordinates[2]:
-        ball_x_speed = -ball_x_speed
-    # paddle2 hitbox detection
-    if epad_coordinates[1] <= ball_coordinates[3] <= epad_coordinates[3] and ball_coordinates[2] >= epad_coordinates[0]:
-        ball_x_speed = -ball_x_speed
-    # general wall collosion detection
-    if ball_coordinates[3] >= 700 or ball_coordinates[1] <= 0:
-        ball_y_speed = -ball_y_speed
-    root.after(10, ballmove)
+    def hit_paddle(self, pos):
+        paddle_pos = self.can.coords(self.pad.tag)
+        if pos[2] >= paddle_pos[0] and pos[0] <= paddle_pos[2]:
+            if pos[3] >= paddle_pos[1] and pos[3] <= paddle_pos[3]:
+                return True
+        return False
 
 
 # paddle movement
-def callback(event, pad):
+'''def callback(event, pad):
     constant_width = getattr(pad, 'start_x')
     w1 = getattr(pad, 'size_x') + getattr(pad, 'start_x')
     move_height = getattr(pad, 'size_y')
     x_event, y_event = event.x, event.y
-    canvas.coords('pad', constant_width, y_event - move_height / 2, w1, y_event + move_height / 2)
+    canvas.coords('pad', constant_width, y_event - move_height / 2, w1, y_event + move_height / 2)'''
 
-
-def controls(event, pad):
-    if event.char == 'w':
-        canvas.move(pad, 0, -10)
-    elif event.char == 's':
-        canvas.move(pad, 0, 10)
-    if event.keysym == 'Delete':
-        root.destroy()
-
-
-ball_x_speed, ball_y_speed = 2, 3  # defining speed and bounce function
-epad_y_speed = 10  # speed of enemy paddle
 root = Tk()  # main window
 ws = root.winfo_screenwidth()  # width of root
 hs = root.winfo_screenheight()  # height of root
@@ -117,7 +85,6 @@ y = (hs / 2) - (h / 2)
 # set the dimensions of the screen and where it is placed
 root.geometry('%dx%d+%d+%d' % (w, h, x, y))
 root.title("ping pong")
-root.overrideredirect(True)
 
 # create canvas
 canvas = Canvas(root, width=w, height=h)
@@ -125,17 +92,13 @@ canvas.pack()
 
 # making paddles
 paddle1 = Paddle(canvas, 10, 10, 10, 100, 'blue', 'pad')
-canvas.bind('<Motion>', lambda event: callback(event, paddle1))  # binding paddle to motion in y
-paddle2 = Paddle(canvas, 1190, 10, 10, 100, 'red', 'epad')
-bind = KeyRepeater()
-bind.key_bind('<KeyPress>', lambda event1: controls(event1, 'epad'))  # binding paddle to motion in y
-
-# adding stats
-time1 = Text(canvas, 10, 10, 'dongo', 'black', 'Helvetica', 'time')
 
 # making ball
-ball1 = Ball(canvas, 20, 20, 20, 20, 'yellow', 'ball')
-ballmove()
+ball1 = Ball(canvas, 20, 20, 20, 20, 'yellow', 'ball', paddle1)
 
-# initialise
-root.mainloop()
+while True:
+    ball1.move()
+    paddle1.move()
+    root.update_idletasks()
+    root.update()
+    time.sleep(0.01)
