@@ -1,5 +1,6 @@
 import random
-import time
+import time, sys
+import datetime
 from tkinter import *
 
 
@@ -45,6 +46,7 @@ class Ball:
         self.live = True
 
     def move(self):  # ball paddle/wall bouncing method
+        global blue, red
         self.can.move(self.tag, self.xspeed, self.yspeed)
         pos = self.can.coords(self.tag)  # position of paddle
         if pos[1] <= 0:  # top wall
@@ -52,16 +54,18 @@ class Ball:
         if pos[3] >= 700:  # bottom wall
             self.yspeed *= -1
         if pos[0] <= 0:  # left wall
+            score[1]+=1
             self.live = False
         if pos[2] >= 1200:  # right wall
+            score[0]+=1
             self.live = False
         if self.hit_paddle(pos) == 'inside':
-            print('clip') # i want to fix ball clipping into paddle
+            print('clip')  # i want to fix ball clipping into paddle
         if self.hit_paddle(pos):
             self.yspeed = random.randrange(-3, 3)  # randomise bounce of paddle
             self.xspeed *= -1
         if self.hit_paddle1(pos) == 'inside':
-            print('clip') # i want to fix ball clipping into paddle
+            print('clip')  # i want to fix ball clipping into paddle
         if self.hit_paddle1(pos):
             self.yspeed = random.randrange(-3, 3)  # randomise bounce of paddle1
             self.xspeed *= -1
@@ -70,16 +74,17 @@ class Ball:
         # 0 = leftmost x, 2 = rightmost x
         # 1 = topmost y, 3 = bottommost y
         paddle_pos = self.can.coords(self.pad.tag)
-        if paddle_pos[2] >= pos[0] and paddle_pos[0] <= pos[0]:
+        if paddle_pos[2] >= pos[0] >= paddle_pos[0]:
             if paddle_pos[1] <= pos[3] <= paddle_pos[3]:
                 return 'inside'
         elif pos[2] >= paddle_pos[0] and pos[0] <= paddle_pos[2]:
             if paddle_pos[1] <= pos[3] <= paddle_pos[3]:
                 return True
         return False
+
     def hit_paddle1(self, pos):  # method to detect ball contact with paddle1
         paddle_pos1 = self.can.coords(self.pad1.tag)
-        if paddle_pos1[0] >= pos[2] and paddle_pos1[2] <= pos[2]:
+        if paddle_pos1[0] >= pos[2] >= paddle_pos1[2]:
             if paddle_pos1[1] <= pos[3] <= paddle_pos1[3]:
                 return True
         if pos[2] >= paddle_pos1[0] and pos[0] <= paddle_pos1[2]:
@@ -87,7 +92,15 @@ class Ball:
                 return True
         return False
 
-
+class StatsBox:
+    def __init__(self, can, width, height, x, y):
+        self.width, height, x, y = width, height, x, y
+        self.can = can
+        self.can.create_window(width, height)
+    def Text(self, can, size_x, size_y, string, font, tag):
+        self.size_x, size_y = size_x, size_y
+        self.can, string, font, tag = can, string, font, tag
+        self.can.create_text(size_x, size_y, font=font, tag=tag, text=string)
 # old mouse paddle movement
 '''def callback(event, pad):
     constant_width = getattr(pad, 'start_x')
@@ -95,7 +108,10 @@ class Ball:
     move_height = getattr(pad, 'size_y')
     x_event, y_event = event.x, event.y
     canvas.coords('pad', constant_width, y_event - move_height / 2, w1, y_event + move_height / 2)'''
-def main():
+
+
+def main(score):
+    global time, root
     root = Tk()  # main window
     ws = root.winfo_screenwidth()  # screen width
     hs = root.winfo_screenheight()  # screen height
@@ -114,15 +130,15 @@ def main():
     canvas = Canvas(root, width=w, height=h)
     canvas.pack()
 
-    # making paddles
-    paddle1 = Paddle(canvas, 10, 10, 10, 100, 'blue', 'pad', '<KeyPress-Up>', '<KeyPress-Down>')
+    paddle1 = Paddle(canvas, 10, 10, 10, 100, 'blue', 'pad', '<KeyPress-Up>', '<KeyPress-Down>')  # making paddles
     paddle2 = Paddle(canvas, 1180, 10, 10, 100, 'red', 'pad1', '<KeyPress-w>', '<KeyPress-s>')
+    ball1 = Ball(canvas, 20, 20, 20, 20, 'yellow', 'ball', paddle1, paddle2)  # making ball
 
-    # making ball
-    ball1 = Ball(canvas, 20, 20, 20, 20, 'yellow', 'ball', paddle1, paddle2)
-
+    # all the text
+    statsbox = StatsBox(canvas, 50, 50, x-100, y-100)
+    scores = statsbox.Text(canvas, 600, 10, f'Blue - %(blue)s Red - %(red)s' % {'blue': score[0], 'red': score[1]}, 'Helvetica', 'score')
     # mainloop
-    while ball1.live == True:
+    while ball1.live:
         ball1.move()
         paddle1.move()
         paddle2.move()
@@ -130,6 +146,10 @@ def main():
         root.update()
         time.sleep(0.01)
     root.destroy()
-    main()
+    score1 = score
+    print(score1)
+    main(score1)
+
+score = [0,0]
 if __name__ == "__main__":
-        main()
+    main(score)
