@@ -47,9 +47,8 @@ def btnprint(lab, num):
 def btncmd(lab, method):
     global output
     if method == 'exe':
-        if output[1] == '+':
-            output[0] = output[int(0)] + output[int(2)]
-            del output[1:]
+        ind = output.index('+')
+        
     elif method == 'ac':
         output.clear()
     lab.config(text=output)
