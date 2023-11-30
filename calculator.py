@@ -1,4 +1,5 @@
 from tkinter import *
+import operator
 
 
 class myButton(Button):
@@ -34,6 +35,13 @@ class myLabel(Label):
         self.root.geometry("+%d+%d" % (x, y))
         self.root.after(1, self.move)
 
+def listint(numList):
+    s = ''.join(map(str, numList))
+    return int(s)
+
+def intlist(integer):
+    s = [int(i) for i in str(integer)]
+    return s
 
 def btnprint(lab, num):
     global output
@@ -47,10 +55,22 @@ def btnprint(lab, num):
 def btncmd(lab, method):
     global output
     if method == 'exe':
-        ind = output.index('+')
+        if '+' in output:
+            op = '+'
+            real = '+'
+        elif '×' in output:
+            op = '×'
+            real = '*'
+        elif '-' in output:
+            op = '-'
+            real = '-'
+        ind = output.index(op)
+        num1=listint(output[:ind])
+        num2=listint(output[ind+1:])
+        output=intlist(eval(str(num1) + real + str(num2)))
         
     elif method == 'ac':
-        output.clear()
+        output = ['0']
     lab.config(text=output)
 
 
