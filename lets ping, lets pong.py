@@ -29,10 +29,10 @@ class Paddle:
             self.yspeed = -1
 
     def move_up(self, event):  # movements and paddle speed
-        self.yspeed = -2
+        self.yspeed = -3
 
     def move_down(self, event):
-        self.yspeed = 2
+        self.yspeed = 3
 
 
 # class to make multiple instances of the ball objects

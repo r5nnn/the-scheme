@@ -48,10 +48,10 @@ def btncmd(lab, method):
     global output
     if method == 'exe':
         if output[1] == '+':
-            output[0] = output[int(0)] + output[int(2)]
+            print(int('1+4*5'))
             del output[1:]
     elif method == 'ac':
-        output.clear()
+        output = ['0']
     lab.config(text=output)
 
 
@@ -80,9 +80,8 @@ def main():
 
     # CALCULATOR BUTTONS
     d = {}
-    n = 0
     for i in range(0, 10):
-        d["num{0}".format(i)] = myButton(i, i, n, lambda i=i: btnprint(ans, i), 'light grey')
+        d["num{0}".format(i)] = myButton(i, 1, i, lambda i=i: btnprint(ans, i), 'light grey')
 
     add = myButton("Add", 0, 0, lambda: btnprint(ans, '+'), 'light grey')
     sub = myButton("Subtract", 0, 1, lambda: btnprint(ans, '-'), 'light grey')
