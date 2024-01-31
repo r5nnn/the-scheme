@@ -74,17 +74,11 @@ def loading(windows, rand_index):
         countdown.update()
     root.after(0, mix, windows, rand_index)
 
-
 def mix(windows, rand_index):
+    countdown.config(text='Shuffling...')
     windows[rand_index + 1].colorc('#181818')
-    x = th.Thread(target=windows[1].move(XY2))
-    x1 = th.Thread(target=windows[2].move(XY1))
-    x2 = th.Thread(target=windows[5].move(XY3))
-    x3 = th.Thread(target=windows[3].move(XY5))
-    x.start()
-    x1.start()
-    x2.start()
-    x3.start()
+    windows[1].move(XY2)
+    windows[2].move(XY1)
 
 
 def main():
