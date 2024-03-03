@@ -18,19 +18,6 @@ class Emoji:
         self.alive = True
         self.charge = charge if charge is not None else atk
 
-    def attack(self, enemy):
-        """
-        :method attack: if there is no case for the specific emoji, use generic alternative
-        :param enemy: emoji which is being attacked
-        """
-        match self.name:
-            case _:
-                print(self.emoji + ' attacks ' + enemy.emoji + '!')
-                print('{emoji} [HP: {hp} - {atk}]'.format(emoji=enemy.emoji, hp=enemy.hp,
-                                                          atk=self.atk / ((enemy.df + 100) / 100)))
-                print('——————————————————————————————————————————————————————————————')
-                enemy.hp -= self.atk / ((enemy.df + 100) / 100)
-
     def dead(self):
         """
         :method dead: handles death of emoji
@@ -58,7 +45,6 @@ class Happy(Emoji):
                 evil = self.charge
                 if self.hp < 100:
                     self.charge += 1
-                print(evil)
                 if evil == 0:
                     print('{you} grinned at {enemy}'.format(you=self.emoji, enemy=enemy.emoji))
                     print('{emoji} [HP: {hp}]'.format(emoji=enemy.emoji, hp=enemy.hp))
@@ -70,8 +56,69 @@ class Happy(Emoji):
                 else:
                     print('{you} grins.. and suddenly attacks {enemy}!'.format(you=self.emoji, enemy=enemy.emoji))
                     print('{emoji} [HP: {hp} - {atk}]'.format(emoji=enemy.emoji, hp=enemy.hp,
-                                                              atk=self.atk / ((enemy.df + 100) / 100)))
+                                                              atk=30 / ((enemy.df + 100) / 100)))
                     print('——————————————————————————————————————————————————————————————')
+                    enemy.hp -= 30 / ((enemy.df + 100) / 100)
+            case 'lol':
+                if enemy.name == 'lmao':
+                    print('{you} laughs so hard they start crying. But {enemy} was already laughing. '
+                          'Nothing happens'.format(enemy=enemy.emoji, you=self.emoji))
+                    print('{emoji} [HP: {hp}]'.format(emoji=enemy.emoji, hp=enemy.hp))
+                elif enemy.name == 'grin':
+                    print('{you} laughs so hard they start crying. {enemy} seems provoked!'.format(
+                            enemy=enemy.emoji, you=self.emoji))
+                    print('{emoji} [HP: {hp}]'.format(emoji=enemy.emoji, hp=enemy.hp))
+                    enemy.charge += 2
+                else:
+                    print('{you} laughs so hard they start crying. '
+                          'Its contagous! {enemy} starts laughing too'.format(enemy=enemy.emoji, you=self.emoji))
+                    print('{emoji} [HP: {hp} DEF: {df} - {debuff}]'.format(emoji=enemy.emoji, hp=enemy.hp,
+                                                                           df=enemy.df, debuff=2))
+                    if enemy.df > 0:
+                        enemy.df -= 2
+                print('——————————————————————————————————————————————————————————————')
+            case 'lmao':
+                if enemy.name == 'lol':
+                    print('{you} laughs so hard they are literally rolling on the floor.'
+                          ' But {enemy} was already laughing. Nothing happens'.format(
+                            enemy=enemy.emoji, you=self.emoji))
+                    print('——————————————————————————————————————————————————————————————')
+                elif enemy.name == 'grin':
+                    print('{you} laughs so hard they start crying. {enemy} seems provoked!'.format(
+                            enemy=enemy.emoji, you=self.emoji))
+                    print('{emoji} [HP: {hp}]'.format(emoji=enemy.emoji, hp=enemy.hp))
+                    print('——————————————————————————————————————————————————————————————')
+                    enemy.charge += 2
+                else:
+                    pain = self.charge
+                    self.charge += 1
+                    if pain == 0:
+                        print('{you} laughs so hard they are literally rolling on the floor.'
+                              ' Its contagous! {enemy} drops to the floor aswell'.format(enemy=enemy.emoji,
+                                                                                         you=self.emoji))
+                        print('{emoji} [HP: {hp} DEF: {df} - {debuff}]'.format(emoji=enemy.emoji, hp=enemy.hp,
+                                                                               df=enemy.df, debuff=4))
+                        print('——————————————————————————————————————————————————————————————')
+                        if enemy.df > 0:
+                            enemy.df -= 2
+                    if pain > 2:
+                        print('{you} laughs so hard they are literally rolling on the floor. '
+                              'Its actually kind of painful.\n'
+                              '{enemy} also aches from the laughter'.format(enemy=enemy.emoji, you=self.emoji))
+                        print('{emoji} [HP: {hp} - {enemylaugh} DEF: {df}]'.format(emoji=enemy.emoji, hp=enemy.hp,
+                                                                                   df=enemy.df, enemylaugh=7))
+                        print('——————————————————————————————————————————————————————————————')
+                        print('{emoji} [HP: {hp} - {selflaugh} DEF: {df}]'.format(emoji=self.emoji, hp=self.hp,
+                                                                                  df=self.df, selflaugh=7))
+                        print('——————————————————————————————————————————————————————————————')
+                        enemy.hp -= 7 / ((enemy.df + 100) / 100)
+                        self.hp -= 7 / ((self.df + 100) / 100)
+            case 'wink':
+                print('{you} winks at {enemy}'.format(you=self.emoji, enemy=enemy.emoji))
+                print('{enemy} blushes... they don\'t see the next attack coming!')
+                print('{emoji} [HP: {hp} - {atk} DEF: {df} - {df}]'.format(emoji=enemy.emoji, hp=enemy.hp,
+                                                          df=self.df, atk=enemy.atk))
+
             case _:
                 print(self.emoji + ' attacks ' + enemy.emoji + '!')
                 print('{emoji} [HP: {hp} - {atk}]'.format(emoji=enemy.emoji, hp=enemy.hp,
@@ -117,7 +164,7 @@ Error: invalid player1 emoji tag. For a list emoji tags, input 2 in the main men
         player2 = emojis[emojiNames.index(player2)]
     else:
         print('''——————————————————————————————————————————————————————————————
-    Error: invalid player2 emoji tag. For a list emoji tags, input 2 in the main menu
+Error: invalid player2 emoji tag. For a list emoji tags, input 2 in the main menu
 ——————————————————————————————————————————————————————————————''')
         time.sleep(1)
         return True
@@ -140,7 +187,7 @@ Error: invalid player1 emoji tag. For a list emoji tags, input 2 in the main men
         print('\n')
         print('{emoji} [HP: {hp} ATK: {atk} DEF: {df}]'.format(emoji=player1.emoji, hp=player1.hp, atk=player1.atk,
                                                                df=player1.df))
-        print('——————————————————————————————————————————————————————————————')
+        input('——————————————————————————————————————————————————————————————')
         # check if players are dead
         if player1.alive is False or player2.alive is False:
             break
@@ -169,13 +216,17 @@ Error: invalid player1 emoji tag. For a list emoji tags, input 2 in the main men
 
 
 # class variables of all emojis
-bigSmile = Happy('bigsmile', '😀', 100.0, 0, 10)
-grin = Happy('grin', '😁', 100.0, 0, 30, 0)
-lol = Happy('lol', '😂', 70.0, 0, 20)
+bigSmile = Happy('bigsmile', '😀', 100.0, 0, 0)
+grin = Happy('grin', '😁', 100.0, 0, 0, 0)
+lol = Happy('lol', '😂', 70.0, 0, 0)
+lmao = Happy('lmao', '🤣', 50.0, 0, 0, 0)
+ohNo = Happy('ohno', '😅', 100.0, 5, 12)
+yeah = Happy('yeah', '😆', 100.0, 10, 10)
+wink = Happy('wink', '😉', 90.0, 0, 7)
 
 # lists of emojis and their tags
-emojis = [bigSmile, grin, lol]
-emojiNames = ['bigsmile', 'grin', 'lol']
+emojis = [bigSmile, grin, lol, lmao, ohNo, yeah, wink]
+emojiNames = ['bigsmile', 'grin', 'lol', 'lmao', 'ohno', 'yeah', 'wink']
 
 STATUS = True
 
